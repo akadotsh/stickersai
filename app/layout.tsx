@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Header from "./(main)/header";
 import { Toaster } from "@/components/ui/sonner";
+import { CheckCheck } from "lucide-react";
 
 const worksans = Work_Sans({ subsets: ["latin"] });
 
@@ -28,7 +29,11 @@ export default function RootLayout({
             </main>
           </div>
         </body>
-        <Toaster />
+        <Toaster
+          icons={{
+            success: "✅",
+          }}
+        />
       </html>
     </ClerkProvider>
   );
