@@ -1,10 +1,13 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { generateSticker } from "@/actions";
 import { Loader } from "./loader";
+import { useState } from "react";
+import useSWRMutation from "swr/mutation";
+import { Sticker } from "./sticker";
+import axios from "axios";
 
 export function SubmitButton() {
   const { pending } = useFormStatus();
@@ -20,28 +23,65 @@ export function SubmitButton() {
 }
 
 const StickersForm = ({ prompt }: { prompt?: string }) => {
-  const [formState, formAction] = useFormState(generateSticker, {
-    message: "",
-  });
+  const [input, setInput] = useState("");
 
-  const formStatus = useFormStatus();
+  function request(url: string, { arg }: { arg: string }) {
+    return axios(url, {
+      method: "POST",
+      data: JSON.stringify({
+        prompt: arg,
+      }),
+    }).then((res) => res.data);
+  }
+
+  const { data, error, trigger, isMutating } = useSWRMutation(
+    "/api/sticker",
+    request,
+    {
+      revalidate: true,
+    }
+  );
 
   return (
-    <form
-      action={formAction}
-      className="w-full flex flex-row border border-solid border-white p-2 rounded-2xl space-x-4 shadow-lg"
-    >
-      <Input
-        className="flex-grow-[1] bg-transparent border-none active:border-none outline-none rounded-full"
-        name="prompt"
-        defaultValue={prompt}
-        disabled={formStatus.pending}
-        placeholder="a cute pudgy penguin"
-        autoCorrect="off"
-        autoComplete="off"
-      />
-      <SubmitButton />
-    </form>
+    <div className="flex flex-col space-y-4">
+      <form
+        onSubmit={(e: any) => {
+          e.preventDefault();
+          trigger(input);
+          setInput("");
+        }}
+        className="w-full flex flex-row border border-solid border-white p-2 rounded-2xl space-x-4 shadow-lg"
+      >
+        <Input
+          className="flex-grow-[1] bg-transparent border-none active:border-none outline-none rounded-full"
+          name="prompt"
+          defaultValue={prompt}
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+          }}
+          disabled={isMutating}
+          placeholder="a cute pudgy penguin"
+          autoCorrect="off"
+          autoComplete="off"
+        />
+        <Button
+          className="bg-black hover:bg-black active:bg-black min-w-[100px]"
+          disabled={isMutating}
+          type="submit"
+        >
+          Generate
+        </Button>
+      </form>
+      {data ??
+        (isMutating && (
+          <Sticker
+            isloading={isMutating}
+            image={data?.imgUrl}
+            prompt={data?.prompt}
+          />
+        ))}
+    </div>
   );
 };
 

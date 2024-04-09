@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Work_Sans } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import Header from "./(main)/header";
 import { Toaster } from "@/components/ui/sonner";
-import { CheckCheck } from "lucide-react";
 
 const worksans = Work_Sans({ subsets: ["latin"] });
 
@@ -19,22 +17,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={worksans.className}>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-1 overflow-y-auto mt-16 px-4">
-              {children}
-            </main>
-          </div>
-        </body>
-        <Toaster
-          icons={{
-            success: "✅",
-          }}
-        />
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={worksans.className}>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-1 overflow-y-auto mt-16 px-4">{children}</main>
+        </div>
+      </body>
+      <Toaster
+        icons={{
+          success: "✅",
+          error: "❌",
+        }}
+      />
+    </html>
   );
 }
