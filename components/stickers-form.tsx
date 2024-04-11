@@ -1,26 +1,11 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader } from "./loader";
 import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { Sticker } from "./sticker";
 import axios from "axios";
-
-export function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button
-      className="bg-black hover:bg-black active:bg-black min-w-[100px]"
-      disabled={pending}
-    >
-      {pending ? <Loader /> : "Generate"}
-    </Button>
-  );
-}
 
 const StickersForm = ({ prompt }: { prompt?: string }) => {
   const [input, setInput] = useState("");
@@ -34,7 +19,7 @@ const StickersForm = ({ prompt }: { prompt?: string }) => {
     }).then((res) => res.data);
   }
 
-  const { data, error, trigger, isMutating } = useSWRMutation(
+  const { data, trigger, isMutating } = useSWRMutation(
     "/api/sticker",
     request,
     {
@@ -73,14 +58,13 @@ const StickersForm = ({ prompt }: { prompt?: string }) => {
           Generate
         </Button>
       </form>
-      {data ??
-        (isMutating && (
-          <Sticker
-            isloading={isMutating}
-            image={data?.imgUrl}
-            prompt={data?.prompt}
-          />
-        ))}
+      {data && !isMutating ? (
+        <Sticker
+          isloading={isMutating}
+          image={data?.image}
+          prompt={data?.prompt}
+        />
+      ) : null}
     </div>
   );
 };
