@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
 
+export const config = {
+  runtime: "edge",
+};
+
 export async function POST(req: NextRequest) {
   const { prompt } = await req.json();
 
